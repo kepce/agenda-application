@@ -2,6 +2,7 @@ import java.util.Calendar;
 
 public class SimpleCalendar{
 
+	
 	private  Calendar calendar = Calendar.getInstance();
 	
 	private int year = calendar.get(Calendar.YEAR);
@@ -11,12 +12,16 @@ public class SimpleCalendar{
 	private int hour = calendar.get(Calendar.HOUR_OF_DAY);
 	private int minute = calendar.get(Calendar.MINUTE);
 	private int second = calendar.get(Calendar.SECOND);
+	private int dayOfyear = calendar.get(Calendar.DAY_OF_YEAR);
 	
 	public int getYear() {
 		return year;
 	}
+	public int getDayOfYear() {
+		return dayOfyear;
+	}
 	public int getMonth() {
-		return month;
+		return month+1;
 	}
 	public int getDayOfWeek() {
 		return dayOfWeek;
