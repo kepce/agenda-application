@@ -2,21 +2,23 @@ import java.awt.BorderLayout;
 import java.util.Calendar;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.table.TableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
 
 public class MainAppFrame extends JFrame{
 
 	private JButton leftButton = new JButton(" < ");
 	private JButton rightButton = new JButton(" > ");
-	private JButton todayButton = new JButton("Today");
+	private JButton todayButton = new JButton("Today"); // add later to the main window to jump today's date
 	public TaskTable taskTable = new TaskTable();
 	private JComboBox comboBox;
 	private JButton okButton = new JButton(" OK ");
 	private Calendar calendar = Calendar.getInstance();
-	private SimpleCalendar cal = new SimpleCalendar();
 	private JLabel dateLabel = new JLabel(""+calendar.get(Calendar.DAY_OF_MONTH)+"."+(calendar.get(Calendar.MONTH)+1)+"."+calendar.get(Calendar.YEAR));
 	
-	private int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
-	private int year = Calendar.getInstance().get(Calendar.YEAR);
+	public int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR); // add get() method for integers
+	public int year = Calendar.getInstance().get(Calendar.YEAR);
 	
 	public MainAppFrame(String title) {
 		super(title);
@@ -52,23 +54,25 @@ public class MainAppFrame extends JFrame{
 		topPanel.add(dateLabel);
 		topPanel.add(rightButton);
 		
-		String tableOptions[] = {"Add New Task",
-									"Task Completed",
-									"Edit Task",
-									"Delete Task"};
+		String tableActionOptions[] = {"Add New Task",
+									   "Task Completed",
+									   "Edit Task",
+									   "Delete Task"};
 		
-		comboBox = new JComboBox(tableOptions);
+		comboBox = new JComboBox(tableActionOptions);
 		
 		okButton.addActionListener(e->{
 			String selectedItem = comboBox.getItemAt(comboBox.getSelectedIndex()).toString();
 			if(selectedItem.equals("Add New Task")) {
-				AddNewTaskFrame newTaskFrame = new AddNewTaskFrame("Add a New Task");
+				AddNewTaskFrame newTaskFrame = new AddNewTaskFrame("Add a New Task", this);
 			}else if(selectedItem.equals("Task Completed")) {
-				
+				taskTable.taskDB.update(ScriptSQL.updateStatus(year, dayOfYear, taskTable.table.getModel().getValueAt(taskTable.getSelectedRow(), 0).toString(), true));
+				taskTable.updateTable(year, dayOfYear);
 			}else if(selectedItem.equals("Edit Task")) {
 				
 			}else if(selectedItem.equals("Delete Task")) {
-				
+				taskTable.taskDB.update(ScriptSQL.deleteRow(year, dayOfYear, taskTable.table.getModel().getValueAt(taskTable.getSelectedRow(), 0).toString()));
+				taskTable.updateTable(year, dayOfYear);
 			}
 		});
 		

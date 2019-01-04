@@ -12,7 +12,7 @@ public class TaskDataBase {
 	
 	public TaskDataBase() {
 		try {
-			connection = DriverManager.getConnection(URL + "table_of_tasks", USERNAME, PASSWORD);	
+			connection = DriverManager.getConnection(URL + "tasks", USERNAME, PASSWORD);	
 		}catch(Exception e) {
 			e.printStackTrace();
 		}	

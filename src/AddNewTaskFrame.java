@@ -14,8 +14,8 @@ public class AddNewTaskFrame extends JFrame{
 	private JButton addButton = new JButton("Add New Task");
 	private JLabel taskNameLabel = new JLabel("Task Name: ");
 	private JTextField taskName = new JTextField();
-	private JLabel taskDescriptionLabel = new JLabel("Task Description: ");
-	private JTextArea taskDescription = new JTextArea(4,25);
+	private JLabel statusLabel = new JLabel("Status: ");
+	private JTextArea statusText = new JTextArea(4,25);
 	private JLabel dueDateLabel = new JLabel("Due Date: ");
 	private JTextField dueDateDay = new JTextField();
 	private JTextField dueDateMonth = new JTextField();
@@ -27,7 +27,7 @@ public class AddNewTaskFrame extends JFrame{
 	private JPanel innerPanel2 = new JPanel();
 	private JPanel innerPanel3 = new JPanel();
 	
-	public AddNewTaskFrame(String title) {
+	public AddNewTaskFrame(String title, MainAppFrame mainAppFrame) {
 		super(title);
 		
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
@@ -37,9 +37,9 @@ public class AddNewTaskFrame extends JFrame{
 		innerPanel1.add(taskName);
 		topPanel.add(innerPanel1);
 		
-		taskDescription.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-		innerPanel2.add(taskDescriptionLabel);
-		innerPanel2.add(taskDescription);
+		statusText.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		innerPanel2.add(statusLabel);
+		innerPanel2.add(statusText);
 		topPanel.add(innerPanel2);
 		
 		dueDateDay.setColumns(2);
@@ -52,9 +52,11 @@ public class AddNewTaskFrame extends JFrame{
 		topPanel.add(innerPanel3);
 		
 		addButton.addActionListener(e->{
-			
-			// add new task function <---- continue from here
-			
+			String formattedDate = String.format("%s/%s/%s", dueDateDay.getText(), dueDateMonth.getText(), dueDateYear.getText());
+			System.out.println(formattedDate);
+			mainAppFrame.taskTable.addNewTask(taskName.getText(), statusText.getText(), formattedDate);
+			mainAppFrame.taskTable.taskDB.update(ScriptSQL.insertRow(mainAppFrame.year, mainAppFrame.dayOfYear, taskName.getText(), statusText.getText(), formattedDate));
+			this.dispose();
 		});
 		
 		bottomPanel.add(addButton);
