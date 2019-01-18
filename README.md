@@ -1,23 +1,17 @@
 
-Agenda
+Agenda Application
 
-Draft for the application
+This application helps to organize daily tasks/goals the user have.
 
-Daily To-Do list
+The user can create, delete, edit and complete a task.
 
-New tasks can be assigned for the current day as well as future days
+The user can see completed and remaining tasks as a table by date.
 
-Tasks can be left for the next day
+All previous task lists are accessible via navigation menu.
 
-Warning system for incoming tasks
+Tools used: Swing API, MySQL.
 
-Point system for To-Do list
 
-Swing GUI
-
-Either text file or mysql for database
-
-Working in the background property (?)
 
 
 
