@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,6 +22,7 @@ public class AddNewTaskFrame extends JFrame{
 	private JTextField dueDateDay = new JTextField();
 	private JTextField dueDateMonth = new JTextField();
 	private JTextField dueDateYear = new JTextField();
+	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 	
 	private JPanel topPanel = new JPanel();
 	private JPanel bottomPanel = new JPanel();
@@ -53,7 +56,6 @@ public class AddNewTaskFrame extends JFrame{
 		
 		addButton.addActionListener(e->{
 			String formattedDate = String.format("%s/%s/%s", dueDateDay.getText(), dueDateMonth.getText(), dueDateYear.getText());
-			System.out.println(formattedDate);
 			mainAppFrame.taskTable.addNewTask(taskName.getText(), statusText.getText(), formattedDate);
 			mainAppFrame.taskTable.taskDB.update(ScriptSQL.insertRow(mainAppFrame.year, mainAppFrame.dayOfYear, taskName.getText(), statusText.getText(), formattedDate));
 			this.dispose();
@@ -62,12 +64,12 @@ public class AddNewTaskFrame extends JFrame{
 		bottomPanel.add(addButton);
 		topPanel.add(bottomPanel);
 		
-		add(topPanel);
+		this.add(topPanel);
 
-		
-		setVisible(true);
-		setResizable(false);
-		setSize(330,280);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setVisible(true);
+		this.setResizable(false);
+		this.setSize(330, 280);
+		this.setLocation((dim.width - this.getHeight())/2, (dim.height - this.getHeight())/2);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 }

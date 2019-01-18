@@ -22,8 +22,7 @@ public class TaskTable extends JPanel{
 	private ColorCellRenderer cellRenderer = new ColorCellRenderer(); 
 
 	
-	public TaskTable() {
-		
+	public TaskTable() {		
 		taskDB.update(ScriptSQL.createTable(calendar.get(Calendar.YEAR), calendar.get(Calendar.DAY_OF_YEAR)));
 		
 		tasks = taskDB.query(ScriptSQL.selectTable(calendar.get(Calendar.YEAR), calendar.get(Calendar.DAY_OF_YEAR)));
@@ -34,7 +33,6 @@ public class TaskTable extends JPanel{
 		table.setRowHeight(25);
 		scrollBar = new JScrollPane(table);
 		add(scrollBar);
-		
 		
 		
 		tableModel.addColumn("Task Name");

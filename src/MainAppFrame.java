@@ -10,15 +10,17 @@ public class MainAppFrame extends JFrame{
 
 	private JButton leftButton = new JButton(" < ");
 	private JButton rightButton = new JButton(" > ");
-	private JButton todayButton = new JButton("Today"); // add later to the main window to jump today's date
-	public TaskTable taskTable = new TaskTable();
+	private JButton todayButton = new JButton("Today"); // add later to the main window to jump today's date - now has no function
 	private JComboBox comboBox;
 	private JButton okButton = new JButton(" OK ");
 	private Calendar calendar = Calendar.getInstance();
 	private JLabel dateLabel = new JLabel(""+calendar.get(Calendar.DAY_OF_MONTH)+"."+(calendar.get(Calendar.MONTH)+1)+"."+calendar.get(Calendar.YEAR));
+	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 	
 	public int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR); // add get() method for integers
-	public int year = Calendar.getInstance().get(Calendar.YEAR);
+	public int year = Calendar.getInstance().get(Calendar.YEAR); // add get() method for integers
+	public TaskTable taskTable = new TaskTable(); // add get() method
+	
 	
 	public MainAppFrame(String title) {
 		super(title);
@@ -66,28 +68,42 @@ public class MainAppFrame extends JFrame{
 			if(selectedItem.equals("Add New Task")) {
 				AddNewTaskFrame newTaskFrame = new AddNewTaskFrame("Add a New Task", this);
 			}else if(selectedItem.equals("Task Completed")) {
-				taskTable.taskDB.update(ScriptSQL.updateStatus(year, dayOfYear, taskTable.table.getModel().getValueAt(taskTable.getSelectedRow(), 0).toString(), true));
-				taskTable.updateTable(year, dayOfYear);
+				try {
+					String selectedTaskName = taskTable.table.getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
+					taskTable.taskDB.update(ScriptSQL.updateStatus(year, dayOfYear, selectedTaskName, true));
+					taskTable.updateTable(year, dayOfYear);
+				}catch(Exception ex) {
+					showNotSelectedWarning(ex);
+				}
 			}else if(selectedItem.equals("Edit Task")) {
-				
+				//taskTable.taskDB.update(ScriptSQL.updateAll(year, dayOfYear, selectedTaskName, newTaskName, isCompleted, newDueDate));
 			}else if(selectedItem.equals("Delete Task")) {
-				taskTable.taskDB.update(ScriptSQL.deleteRow(year, dayOfYear, taskTable.table.getModel().getValueAt(taskTable.getSelectedRow(), 0).toString()));
-				taskTable.updateTable(year, dayOfYear);
+				try {
+					String selectedTaskName = taskTable.table.getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
+					DeleteTaskFrame deleteTaskFrame = new DeleteTaskFrame("Warning!", selectedTaskName, this);
+				}catch(Exception ex) {
+					showNotSelectedWarning(ex);
+				}
 			}
 		});
 		
 		bottomPanel.add(comboBox);
 		bottomPanel.add(okButton);
 		
-		add(topPanel,BorderLayout.PAGE_START);
-
-		add(bottomPanel, BorderLayout.PAGE_END);
-		add(taskTable, BorderLayout.CENTER);
+		this.add(topPanel,BorderLayout.PAGE_START);
+		this.add(bottomPanel, BorderLayout.PAGE_END);
+		this.add(taskTable, BorderLayout.CENTER);
 		
-		setVisible(true);
-		setSize(600, 450);
-		setResizable(false);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setVisible(true);
+		this.setSize(600, 450);
+		this.setResizable(false);
+		this.setLocation((dim.width - this.getHeight())/2, (dim.height - this.getHeight())/2);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
+	}
+	
+	private void showNotSelectedWarning(Exception ex) {
+		JOptionPane.showMessageDialog(this, "You have not selected any task.", "Warning!", JOptionPane.WARNING_MESSAGE);
+		ex.printStackTrace();
 	}
 }

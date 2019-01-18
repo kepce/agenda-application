@@ -11,8 +11,9 @@ public class TaskDataBase {
 	private static final String PASSWORD = "12345qwer";
 	
 	public TaskDataBase() {
-		try {
-			connection = DriverManager.getConnection(URL + "tasks", USERNAME, PASSWORD);	
+		try { 
+			connection = DriverManager.getConnection(URL + "tasks", USERNAME, PASSWORD);
+			statement = connection.createStatement();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}	
@@ -20,7 +21,6 @@ public class TaskDataBase {
 	
 	public static ResultSet query(String script) {
 		try {
-			statement = connection.createStatement();
 			resultSet = statement.executeQuery(script);
 		}catch(Exception e) {
 			e.printStackTrace();
