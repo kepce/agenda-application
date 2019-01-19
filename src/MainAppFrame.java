@@ -17,9 +17,9 @@ public class MainAppFrame extends JFrame{
 	private JLabel dateLabel = new JLabel(""+calendar.get(Calendar.DAY_OF_MONTH)+"."+(calendar.get(Calendar.MONTH)+1)+"."+calendar.get(Calendar.YEAR));
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 	
-	public int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR); // add get() method for integers
-	public int year = Calendar.getInstance().get(Calendar.YEAR); // add get() method for integers
-	public TaskTable taskTable = new TaskTable(); // add get() method
+	private int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR); 
+	private int year = Calendar.getInstance().get(Calendar.YEAR); 
+	private TaskTable taskTable = new TaskTable();
 	
 	
 	public MainAppFrame(String title) {
@@ -69,8 +69,8 @@ public class MainAppFrame extends JFrame{
 				AddNewTaskFrame newTaskFrame = new AddNewTaskFrame("Add a New Task", this);
 			}else if(selectedItem.equals("Task Completed")) {
 				try {
-					String selectedTaskName = taskTable.table.getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
-					taskTable.taskDB.update(ScriptSQL.updateStatus(year, dayOfYear, selectedTaskName, true));
+					String selectedTaskName = taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
+					taskTable.getDataBaseConnection().update(ScriptSQL.updateStatus(year, dayOfYear, selectedTaskName, true));
 					taskTable.updateTable(year, dayOfYear);
 				}catch(Exception ex) {
 					showNotSelectedWarning(ex);
@@ -79,7 +79,7 @@ public class MainAppFrame extends JFrame{
 				//taskTable.taskDB.update(ScriptSQL.updateAll(year, dayOfYear, selectedTaskName, newTaskName, isCompleted, newDueDate));
 			}else if(selectedItem.equals("Delete Task")) {
 				try {
-					String selectedTaskName = taskTable.table.getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
+					String selectedTaskName = taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
 					DeleteTaskFrame deleteTaskFrame = new DeleteTaskFrame("Warning!", selectedTaskName, this);
 				}catch(Exception ex) {
 					showNotSelectedWarning(ex);
@@ -105,5 +105,17 @@ public class MainAppFrame extends JFrame{
 	private void showNotSelectedWarning(Exception ex) {
 		JOptionPane.showMessageDialog(this, "You have not selected any task.", "Warning!", JOptionPane.WARNING_MESSAGE);
 		ex.printStackTrace();
+	}
+	
+	public int getYear() {
+		return this.year;
+	}
+	
+	public int getDayOfYear() {
+		return this.dayOfYear;
+	}
+	
+	public TaskTable getTaskTable() {
+		return this.taskTable;
 	}
 }

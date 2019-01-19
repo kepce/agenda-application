@@ -19,7 +19,7 @@ public class TaskDataBase {
 		}	
 	}
 	
-	public static ResultSet query(String script) {
+	public ResultSet query(String script) {
 		try {
 			resultSet = statement.executeQuery(script);
 		}catch(Exception e) {
@@ -28,7 +28,7 @@ public class TaskDataBase {
 		return resultSet;
 	}
 	
-	public static void update(String script) {
+	public void update(String script) {
 		try {
 			statement.executeUpdate(script);
 		}catch(Exception e) {

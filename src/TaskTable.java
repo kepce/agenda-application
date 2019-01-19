@@ -15,9 +15,9 @@ public class TaskTable extends JPanel{
 
 	private Calendar calendar = Calendar.getInstance();
 	private DefaultTableModel tableModel = new DefaultTableModel();
-	public JTable table;
+	private JTable table;
 	private JScrollPane scrollBar;
-	public TaskDataBase taskDB = new TaskDataBase();
+	private TaskDataBase taskDB = new TaskDataBase();
 	private ResultSet tasks;
 	private ColorCellRenderer cellRenderer = new ColorCellRenderer(); 
 
@@ -89,6 +89,14 @@ public class TaskTable extends JPanel{
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 		
+	}
+	
+	public TaskDataBase getDataBaseConnection() {
+		return this.taskDB;
+	}
+	
+	public JTable getTable() {
+		return table;
 	}
 	 	
 }

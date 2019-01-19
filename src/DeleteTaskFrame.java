@@ -27,8 +27,8 @@ public class DeleteTaskFrame extends JFrame{
 		add(warningLabel, BorderLayout.CENTER);
 		
 		deleteButton.addActionListener(e->{
-			mainAppFrame.taskTable.taskDB.update(ScriptSQL.deleteRow(mainAppFrame.year, mainAppFrame.dayOfYear, mainAppFrame.taskTable.table.getModel().getValueAt(mainAppFrame.taskTable.getSelectedRow(), 0).toString()));
-			mainAppFrame.taskTable.updateTable(mainAppFrame.year, mainAppFrame.dayOfYear);
+			mainAppFrame.getTaskTable().getDataBaseConnection().update(ScriptSQL.deleteRow(mainAppFrame.getYear(), mainAppFrame.getDayOfYear(), mainAppFrame.getTaskTable().getTable().getModel().getValueAt(mainAppFrame.getTaskTable().getSelectedRow(), 0).toString()));
+			mainAppFrame.getTaskTable().updateTable(mainAppFrame.getYear(), mainAppFrame.getDayOfYear());
 			this.dispose();
 		});
 		
