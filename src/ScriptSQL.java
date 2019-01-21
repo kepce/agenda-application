@@ -21,10 +21,10 @@ public class ScriptSQL {
 		if(isCompleted) 
 			return "UPDATE tasks.table" + year + "_" + dayOfYear +
 					" SET status = 'Completed' WHERE task_name = '" + selectedTaskName + "';";
-		else {
+		else 
 			return "UPDATE tasks.table" + year + "_" + dayOfYear + 
 					" SET status = 'Not Completed' WHERE task_name = '" + selectedTaskName + "';";
-		}	
+			
 	}
 	
 	public static String updateAll(int year, int dayOfYear, String selectedTaskName, String newTaskName, boolean isCompleted, String newDueDate) {
@@ -32,11 +32,11 @@ public class ScriptSQL {
 			return "UPDATE tasks.table" + year + "_" + dayOfYear + 
 					" SET task_name = '" + newTaskName + "', status = 'Completed', dueDate = '" + newDueDate + 
 					"' WHERE task_name = '" + selectedTaskName + "';";
-		else {
+		else 
 			return "UPDATE tasks.table" + year + "_" + dayOfYear + 
 					" SET task_name = '" + newTaskName + "', status = 'Not Completed', dueDate = '" + newDueDate + 
 					"' WHERE task_name = '" + selectedTaskName + "';";
-		}
+		
 	}
 	
 	public static String deleteRow(int year, int dayOfYear, String selectedTaskName) {

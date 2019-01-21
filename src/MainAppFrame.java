@@ -19,11 +19,14 @@ public class MainAppFrame extends JFrame{
 	
 	private int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR); 
 	private int year = Calendar.getInstance().get(Calendar.YEAR); 
-	private TaskTable taskTable = new TaskTable();
+	private TaskTable taskTable;
 	
 	
 	public MainAppFrame(String title) {
 		super(title);
+		
+		taskTable = new TaskTable(this);
+
 		setLayout(new BorderLayout());
 		JPanel topPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
@@ -99,6 +102,7 @@ public class MainAppFrame extends JFrame{
 		this.setResizable(false);
 		this.setLocation((dim.width - this.getHeight())/2, (dim.height - this.getHeight())/2);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
 		
 	}
 	
