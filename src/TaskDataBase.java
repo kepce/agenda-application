@@ -17,6 +17,8 @@ public class TaskDataBase {
 	
 	private List <Task> taskList = new ArrayList<Task>();
 	
+	private List <RepeatedTask> repeatedTaskList = new ArrayList<RepeatedTask>();
+	
 	public TaskDataBase(MainAppFrame mainAppFrame){
 		try { 
 			connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
@@ -26,16 +28,30 @@ public class TaskDataBase {
 		}
 	}
 	
-	public List<Task> getTaskListFromDataBase(String script) {
+	public List<Task> getTaskListOf(String tableName) {
 		try {
-			resultSet = statement.executeQuery(script);
+			resultSet = query(ScriptSQL.selectTable(tableName));
 			while(resultSet.next()) {
-				taskList.add(new Task(resultSet.getString("task_name"), resultSet.getString("status"), resultSet.getString("due_date")));
+				taskList.add(new Task(resultSet.getString("task_name"),
+									  resultSet.getString("status"),
+									  resultSet.getString("due_date")));
 			}
-		}catch(SQLException e) {
-			e.printStackTrace();
+		}catch(SQLException ex) {
+			ex.printStackTrace();
 		}
 		return taskList;
+	}
+	
+	public List<RepeatedTask> getRepeatedTaskList(){
+		try {
+			resultSet = query(ScriptSQL.selectRepeatedTaskTable());
+			while(resultSet.next()) {
+				repeatedTaskList.add(new RepeatedTask(resultSet.getString("task_name"), RepeatedTask.toBoolean(resultSet.getString("repeated_on"))));
+			}
+		}catch(SQLException ex) {
+			
+		}
+		return repeatedTaskList;
 	}
 	
 	public ResultSet query(String script) {

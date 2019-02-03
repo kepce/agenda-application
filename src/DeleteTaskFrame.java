@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -27,8 +28,13 @@ public class DeleteTaskFrame extends JFrame{
 		add(warningLabel, BorderLayout.CENTER);
 		
 		deleteButton.addActionListener(e->{
-			mainAppFrame.getTaskTable().getDataBaseConnection().update(ScriptSQL.deleteRow(mainAppFrame.getYear(), mainAppFrame.getDayOfYear(), mainAppFrame.getTaskTable().getTable().getModel().getValueAt(mainAppFrame.getTaskTable().getSelectedRow(), 0).toString()));
-			mainAppFrame.getTaskTable().updateTable(mainAppFrame.getYear(), mainAppFrame.getDayOfYear());
+			String selectedTaskDate = mainAppFrame.getTaskTable().getTable().getModel().getValueAt(mainAppFrame.getTaskTable().getSelectedRow(), 2).toString();
+			if(selectedTaskDate.equals("Daily Task")) {
+				mainAppFrame.getTaskTable().getDataBaseConnection().update(ScriptSQL.deleteRepeatedRow(selectedTaskName));
+			}else {
+				mainAppFrame.getTaskTable().getDataBaseConnection().update(ScriptSQL.deleteRow(mainAppFrame.getTableName(), selectedTaskName));
+			}
+			mainAppFrame.getTaskTable().updateTable(mainAppFrame.getDate());
 			this.dispose();
 		});
 		

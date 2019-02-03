@@ -1,4 +1,6 @@
 import java.awt.BorderLayout;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.awt.*;
 import javax.swing.*;
@@ -8,17 +10,16 @@ import javax.swing.table.TableCellEditor;
 
 public class MainAppFrame extends JFrame{
 
+	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd / MM / uuuu");
+	private static final DateTimeFormatter TABLE_NAME_FORMAT = DateTimeFormatter.ofPattern("uuuu_DDD");
+	
 	private JButton leftButton = new JButton(" < ");
 	private JButton rightButton = new JButton(" > ");
-	private JButton todayButton = new JButton("Today"); // add later to the main window to jump today's date - now has no function
 	private JComboBox comboBox;
 	private JButton okButton = new JButton(" OK ");
-	private Calendar calendar = Calendar.getInstance();
-	private JLabel dateLabel = new JLabel(""+calendar.get(Calendar.DAY_OF_MONTH)+"."+(calendar.get(Calendar.MONTH)+1)+"."+calendar.get(Calendar.YEAR));
+	private LocalDate date = LocalDate.now();
+	private JLabel dateLabel = new JLabel(date.format(DATE_FORMAT));
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-	
-	private int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR); 
-	private int year = Calendar.getInstance().get(Calendar.YEAR); 
 	private TaskTable taskTable;
 	
 	
@@ -32,27 +33,15 @@ public class MainAppFrame extends JFrame{
 		JPanel bottomPanel = new JPanel();
 		
 		rightButton.addActionListener(e->{
-			dayOfYear++;
-			if(dayOfYear >= 366) {
-				dayOfYear = 1;
-				year++;
-				calendar.set(Calendar.YEAR, year);
-			}
-			calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
-			dateLabel.setText(""+calendar.get(Calendar.DAY_OF_MONTH)+"."+(calendar.get(Calendar.MONTH)+1)+"."+calendar.get(Calendar.YEAR));
-			taskTable.updateTable(year, dayOfYear);
+			date = date.plusDays(1);
+			dateLabel.setText(date.format(DATE_FORMAT));
+			taskTable.updateTable(date);
 		});
 		
 		leftButton.addActionListener(e->{
-			dayOfYear--;
-			if(dayOfYear <= 0) {
-				dayOfYear = 365;
-				year--;
-				calendar.set(Calendar.YEAR, year);
-			}
-			calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
-			dateLabel.setText(""+calendar.get(Calendar.DAY_OF_MONTH)+"."+(calendar.get(Calendar.MONTH)+1)+"."+calendar.get(Calendar.YEAR));
-			taskTable.updateTable(year, dayOfYear);
+			date = date.minusDays(1);
+			dateLabel.setText(date.format(DATE_FORMAT));
+			taskTable.updateTable(date);
 		});
 		
 		topPanel.add(leftButton);
@@ -65,21 +54,24 @@ public class MainAppFrame extends JFrame{
 									   "Delete Task"};
 		
 		comboBox = new JComboBox(tableActionOptions);
-		
+
 		okButton.addActionListener(e->{
 			String selectedItem = comboBox.getItemAt(comboBox.getSelectedIndex()).toString();
 			if(selectedItem.equals("Add New Task")) {
 				AddNewTaskFrame newTaskFrame = new AddNewTaskFrame("Add a New Task", this);
+				this.setEnabled(false);
 			}else if(selectedItem.equals("Task Completed")) {
 				try {
 					String selectedTaskName = taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
-					taskTable.getDataBaseConnection().update(ScriptSQL.updateStatus(year, dayOfYear, selectedTaskName, true));
-					taskTable.updateTable(year, dayOfYear);
+					taskTable.getDataBaseConnection().update(ScriptSQL.updateStatus(getTableNameOf(date), selectedTaskName, true));
+					taskTable.updateTable(date);
 				}catch(Exception ex) {
 					showNotSelectedWarning(ex);
 				}
 			}else if(selectedItem.equals("Edit Task")) {
-				//taskTable.taskDB.update(ScriptSQL.updateAll(year, dayOfYear, selectedTaskName, newTaskName, isCompleted, newDueDate));
+				// <<<<<<
+				// <<<<<< Edit Task Frame
+				// <<<<<
 			}else if(selectedItem.equals("Delete Task")) {
 				try {
 					String selectedTaskName = taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
@@ -111,15 +103,45 @@ public class MainAppFrame extends JFrame{
 		ex.printStackTrace();
 	}
 	
-	public int getYear() {
-		return this.year;
-	}
-	
-	public int getDayOfYear() {
-		return this.dayOfYear;
-	}
-	
 	public TaskTable getTaskTable() {
 		return this.taskTable;
 	}
+	
+	public LocalDate getDate() {
+		return this.date;
+	}
+	
+	public String getTableName() {
+		return this.date.format(TABLE_NAME_FORMAT);
+	}
+	
+	public String getTableNameOf(LocalDate date) {
+		return date.format(TABLE_NAME_FORMAT);
+	}
 }
+
+
+/*
+ * No Edit Task Frame
+ * 
+ * task complete dediðinde mor olanlarý yesil yapmýyor
+ * yapsan bile ileri geri oklarýný kullanýnca tekrar mora dönecek
+ * 
+ * renkleri kapa ac özelligi gelebilir
+ * 
+ * database icin login sayfasý gelebilir
+ * 
+ * tasklarla alakalý acýklama olabilir
+ * 
+ * kodu düzenle
+ * database connectioni maine al - IMPROVEMENT
+ * taskdatabase ismi degistir
+ * 
+ * her seyi tek tabloya koy
+ * 
+ * 
+ * */
+
+
+
+

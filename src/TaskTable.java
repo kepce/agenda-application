@@ -3,6 +3,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -16,31 +18,30 @@ import javax.swing.table.DefaultTableModel;
 
 public class TaskTable extends JPanel{
 
-	private Calendar calendar;
 	private DefaultTableModel tableModel;
 	private JTable table;
 	private JScrollPane scrollPane;
 	private TaskDataBase taskDB;
 	private ColorCellRenderer cellRenderer;
-	private int year;
-	private int dayOfYear;
-	
 	private List<Task> taskList = new ArrayList<Task>();
+	private List<RepeatedTask> repeatedTaskList = new ArrayList<RepeatedTask>();
+	private LocalDate today;
 	
 	public TaskTable(MainAppFrame mainAppFrame) {
 		
+		today = LocalDate.now();
 		taskDB = new TaskDataBase(mainAppFrame);
+		taskDB.update(ScriptSQL.createRepeatedTaskTable());
+		taskDB.update(ScriptSQL.createTable(mainAppFrame.getTableName()));
+		taskList = taskDB.getTaskListOf(today.format(DateTimeFormatter.ofPattern("uuuu_DDD")));
+		repeatedTaskList = taskDB.getRepeatedTaskList();
+		
 		tableModel = new DefaultTableModel();
 		table  = new JTable(tableModel);
 		scrollPane = new JScrollPane(table);
-		calendar = Calendar.getInstance();
-		year = calendar.get(Calendar.YEAR);
-		dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
-		cellRenderer = new ColorCellRenderer();
 		
-		taskDB.update(ScriptSQL.createTable(year, dayOfYear));
-		taskList = taskDB.getTaskListFromDataBase(ScriptSQL.selectTable(year, dayOfYear));
-
+		cellRenderer = new ColorCellRenderer();
+	
 		table.setPreferredScrollableViewportSize(new Dimension(500,310));
 		table.setFillsViewportHeight(true);
 		table.setRowHeight(25);
@@ -52,8 +53,7 @@ public class TaskTable extends JPanel{
 		
 		add(scrollPane);
 
-		updateTable(year, dayOfYear);
-		
+		updateTable(today);
 	}
 	
 	public void addNewTask(String taskName, String status, String dueDate) {
@@ -64,17 +64,33 @@ public class TaskTable extends JPanel{
 		tableModel.addRow(new String[] {task.getName(), task.getStatus(), task.getDueDate()});
 	}
 	
-	public void updateTable(int year, int dayOfYear) {
+	public void addNewTask(RepeatedTask repeatedTask) {
+		tableModel.addRow(new String[] {repeatedTask.getName(), "Not Completed", "Daily Task"});
+	}
+	
+	public void updateTable(LocalDate date) {
+		String tableName = date.format(DateTimeFormatter.ofPattern("uuuu_DDD"));
 		tableModel = (DefaultTableModel) table.getModel();
 		tableModel.setRowCount(0);
-		taskDB.update(ScriptSQL.createTable(year, dayOfYear));
+		taskDB.update(ScriptSQL.createTable(tableName));
 		taskList.clear();
-		taskList = taskDB.getTaskListFromDataBase(ScriptSQL.selectTable(year, dayOfYear));
+		taskList = taskDB.getTaskListOf(tableName);
 		Iterator iterator = taskList.iterator();
 		while(iterator.hasNext()) 
 			addNewTask((Task) iterator.next());
+		repeatedTaskList.clear();
+		repeatedTaskList = taskDB.getRepeatedTaskList();
+		Iterator repIterator = repeatedTaskList.iterator();
+		RepeatedTask repTask;
+		while(repIterator.hasNext()) {
+			repTask = (RepeatedTask) repIterator.next();
+			for(int i=0; i < 7; i++) {
+				if(repTask.getRepeatedDays()[i] && ((date.getDayOfWeek().getValue()-1) == i)) {
+					addNewTask(repTask);
+				}
+			}	
+		}
 	}
-	
 	
 	public int getSelectedRow() {
 		return table.getSelectedRow();
@@ -85,6 +101,7 @@ public class TaskTable extends JPanel{
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			
 			String status = (String)table.getModel().getValueAt(row, 1);
+			String dueDate = (String) table.getModel().getValueAt(row, 2);
 			table.setFont(new Font("Calibri", Font.PLAIN, 14));
 			if(status.equals("Not Completed")) {
 				setForeground(Color.BLACK);
@@ -92,6 +109,10 @@ public class TaskTable extends JPanel{
 			}else {
 				setForeground(Color.BLACK);
 				setBackground(Color.GREEN);
+			}
+			if(dueDate.equals("Daily Task")) {
+				setForeground(Color.BLACK);
+				setBackground(Color.MAGENTA);
 			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}

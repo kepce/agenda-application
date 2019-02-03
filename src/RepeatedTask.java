@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 
 public class RepeatedTask extends Task{
 
@@ -5,51 +6,75 @@ public class RepeatedTask extends Task{
 	private boolean[] repeatOn = new boolean[7];
 	private boolean isEverydayTask = false;
 	
-	public static final int MONDAY 		= 0;
-	public static final int TUESDAY 	= 1;
-	public static final int WEDNESDAY 	= 2;
-	public static final int THURSDAY 	= 3;
-	public static final int FRIDAY 		= 4;
-	public static final int SATURDAY 	= 5;
-	public static final int SUNDAY 		= 6;
+	private String[] repeatDays; //  <<<
+	private LocalDate date; //    <<<
 	
-	RepeatedTask(){}
+	public RepeatedTask(){}
 	
-	RepeatedTask(String name, String status, String dueDate, boolean[] repeatOn){
-		super(name, status, dueDate);
+	public RepeatedTask(String name, boolean[] repeatOn){
+		super(name, false, "Daily Task");
 		this.repeatOn = repeatOn;
 		isEverydayTask = true;
 		for(boolean b : repeatOn)
 			isEverydayTask = isEverydayTask && b;
 	}
 	
-	RepeatedTask(String name, boolean isCompleted, String dueDate, boolean[] repeatOn){
-		super(name, isCompleted, dueDate);
+	public RepeatedTask(String name, boolean isEverydayTask){
+		super(name, false, "Daily Task");
+		this.isEverydayTask = isEverydayTask;
+	}
+	
+	public RepeatedTask(Task task, boolean[] repeatOn) {
+		super(task.getName(), false, "Daily Task");
 		this.repeatOn = repeatOn;
 		isEverydayTask = true;
 		for(boolean b : repeatOn)
 			isEverydayTask = isEverydayTask && b;
 	}
 	
-	RepeatedTask(String name, boolean isCompleted, String dueDate, boolean isEverydayTask){
-		super(name, isCompleted, dueDate);
+	public RepeatedTask(Task task, boolean isEverydayTask){
+		super(task.getName(), false, "Daily Task");
 		this.isEverydayTask = isEverydayTask;
 	}
 
-	public boolean isRepeatedOn(int dayOfWeek) {
-		if(isEverydayTask)
-			return true;
-		else
-			 return repeatOn[dayOfWeek];
+	public RepeatedTask(String name, String[] repeatedDays) { // <<<
+		super(name, false, "Daily Task");
+		this.repeatDays = repeatedDays;
+	}
+	
+	public boolean[] getRepeatedDays() {
+		return repeatOn;
 	}
 
-	public void repeatOn(int dayOfWeek,boolean isRepeated) {
+	public void repeatOn(int dayOfWeek, boolean isRepeated) {
 		this.repeatOn[dayOfWeek] = isRepeated;
 		isEverydayTask = isEverydayTask && this.repeatOn[dayOfWeek];
 	}
 	
 	public boolean isRepeatedEveryday() {
 		return isEverydayTask;
+	}
+	
+	public static boolean[] toBoolean(String string) {
+		boolean[] repeatedDays = new boolean[7];
+		for(int i=0; i<7; i++) {
+			if(string.toCharArray()[i]== '1')
+				repeatedDays[i] = true;
+			else
+				repeatedDays[i] = false;
+		}
+		return repeatedDays;
+	}
+	
+	public static String booleanToString(boolean[] boolArray) {
+		String string = "";
+		for(int i=0; i<7; i++) {
+			if(boolArray[i])
+				string += "1";
+			else
+				string += "0";
+		}
+		return string;
 	}
 	
 	
