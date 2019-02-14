@@ -21,7 +21,7 @@ public class TaskTable extends JPanel{
 	private DefaultTableModel tableModel;
 	private JTable table;
 	private JScrollPane scrollPane;
-	private TaskDataBase taskDB;
+	private DataBaseConnection dbc;
 	private ColorCellRenderer cellRenderer;
 	private List<Task> taskList = new ArrayList<Task>();
 	private List<RepeatedTask> repeatedTaskList = new ArrayList<RepeatedTask>();
@@ -29,12 +29,13 @@ public class TaskTable extends JPanel{
 	
 	public TaskTable(MainAppFrame mainAppFrame) {
 		
-		today = LocalDate.now();
-		taskDB = new TaskDataBase(mainAppFrame);
-		taskDB.update(ScriptSQL.createRepeatedTaskTable());
-		taskDB.update(ScriptSQL.createTable(mainAppFrame.getTableName()));
-		taskList = taskDB.getTaskListOf(today.format(DateTimeFormatter.ofPattern("uuuu_DDD")));
-		repeatedTaskList = taskDB.getRepeatedTaskList();
+		today = LocalDate.now();		
+		dbc = DataBaseConnection.getInstance();
+		dbc.update(ScriptSQL.createRepeatedTaskTable());
+		dbc.update(ScriptSQL.createTable());
+		
+		taskList = dbc.getTaskListOf(today.format(DateTimeFormatter.ofPattern("dd/MM/uuuu")));
+		repeatedTaskList = dbc.getRepeatedTaskList();
 		
 		tableModel = new DefaultTableModel();
 		table  = new JTable(tableModel);
@@ -53,7 +54,7 @@ public class TaskTable extends JPanel{
 		
 		add(scrollPane);
 
-		updateTable(today);
+		updateTable(mainAppFrame.getDate());
 	}
 	
 	public void addNewTask(String taskName, String status, String dueDate) {
@@ -61,32 +62,35 @@ public class TaskTable extends JPanel{
 	}
 	
 	public void addNewTask(Task task) {
-		tableModel.addRow(new String[] {task.getName(), task.getStatus(), task.getDueDate()});
-	}
-	
-	public void addNewTask(RepeatedTask repeatedTask) {
-		tableModel.addRow(new String[] {repeatedTask.getName(), "Not Completed", "Daily Task"});
+		if(task instanceof RepeatedTask)
+			tableModel.addRow(new String[] {task.getName(), "Not Completed", "Daily Task"});
+		else
+			tableModel.addRow(new String[] {task.getName(), task.getStatus(), task.getDueDate()});
 	}
 	
 	public void updateTable(LocalDate date) {
-		String tableName = date.format(DateTimeFormatter.ofPattern("uuuu_DDD"));
 		tableModel = (DefaultTableModel) table.getModel();
 		tableModel.setRowCount(0);
-		taskDB.update(ScriptSQL.createTable(tableName));
 		taskList.clear();
-		taskList = taskDB.getTaskListOf(tableName);
-		Iterator iterator = taskList.iterator();
+		taskList = dbc.getTaskListOf(date.format(DateTimeFormatter.ofPattern("dd / MM / uuuu")));
+		Iterator<Task> iterator = taskList.iterator();
 		while(iterator.hasNext()) 
 			addNewTask((Task) iterator.next());
 		repeatedTaskList.clear();
-		repeatedTaskList = taskDB.getRepeatedTaskList();
-		Iterator repIterator = repeatedTaskList.iterator();
+		repeatedTaskList = dbc.getRepeatedTaskList();
+		Iterator<RepeatedTask> repIterator = repeatedTaskList.iterator();
 		RepeatedTask repTask;
 		while(repIterator.hasNext()) {
 			repTask = (RepeatedTask) repIterator.next();
 			for(int i=0; i < 7; i++) {
-				if(repTask.getRepeatedDays()[i] && ((date.getDayOfWeek().getValue()-1) == i)) {
-					addNewTask(repTask);
+				if(repTask.getRepeatedDays()[i] && ((date.getDayOfWeek().getValue()-1) == i) && !taskList.contains(repTask)) {
+					Task task = new Task(repTask.getName(),
+							repTask.getStatus(),
+							repTask.getDueDate(),
+							date.format(DateTimeFormatter.ofPattern("dd / MM / uuuu")));
+					dbc.update(ScriptSQL.insertRow(task));
+					addNewTask(task);
+					
 				}
 			}	
 		}
@@ -103,27 +107,26 @@ public class TaskTable extends JPanel{
 			String status = (String)table.getModel().getValueAt(row, 1);
 			String dueDate = (String) table.getModel().getValueAt(row, 2);
 			table.setFont(new Font("Calibri", Font.PLAIN, 14));
-			if(status.equals("Not Completed")) {
+
+			if(dueDate.equals("Daily Task") && status.equals("Not Completed")) {
+				setForeground(Color.BLACK);
+				setBackground(Color.MAGENTA);
+			}else if(dueDate.equals("Daily Task") && status.equals("Completed")) {
+				setForeground(Color.BLACK);
+				setBackground(Color.GREEN);
+			}else if(status.equals("Not Completed")) {
 				setForeground(Color.BLACK);
 				setBackground(Color.RED);
 			}else {
 				setForeground(Color.BLACK);
 				setBackground(Color.GREEN);
 			}
-			if(dueDate.equals("Daily Task")) {
-				setForeground(Color.BLACK);
-				setBackground(Color.MAGENTA);
-			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
 		
 	}
 	
-	public TaskDataBase getDataBaseConnection() {
-		return this.taskDB;
-	}
-	
-	public JTable getTable() {
+	public JTable getTable() { /// <<<<<<<<<<<<<<<<<< make it return copy of table for immutability
 		return table;
 	}
 	 	

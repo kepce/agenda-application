@@ -12,33 +12,15 @@ public class RepeatedTask extends Task{
 	public RepeatedTask(){}
 	
 	public RepeatedTask(String name, boolean[] repeatOn){
-		super(name, false, "Daily Task");
+		super(name, "Not Completed", "Daily Task", null);
 		this.repeatOn = repeatOn;
 		isEverydayTask = true;
 		for(boolean b : repeatOn)
 			isEverydayTask = isEverydayTask && b;
-	}
-	
-	public RepeatedTask(String name, boolean isEverydayTask){
-		super(name, false, "Daily Task");
-		this.isEverydayTask = isEverydayTask;
-	}
-	
-	public RepeatedTask(Task task, boolean[] repeatOn) {
-		super(task.getName(), false, "Daily Task");
-		this.repeatOn = repeatOn;
-		isEverydayTask = true;
-		for(boolean b : repeatOn)
-			isEverydayTask = isEverydayTask && b;
-	}
-	
-	public RepeatedTask(Task task, boolean isEverydayTask){
-		super(task.getName(), false, "Daily Task");
-		this.isEverydayTask = isEverydayTask;
 	}
 
 	public RepeatedTask(String name, String[] repeatedDays) { // <<<
-		super(name, false, "Daily Task");
+		super(name, "Not Completed", "Daily Task", null);
 		this.repeatDays = repeatedDays;
 	}
 	

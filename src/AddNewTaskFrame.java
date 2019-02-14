@@ -1,7 +1,9 @@
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -47,11 +49,12 @@ public class AddNewTaskFrame extends JFrame{
 			new JCheckBox("Su")
 	};
 
-	
+	private DataBaseConnection dbc;
 	
 	public AddNewTaskFrame(String title, MainAppFrame mainAppFrame) {
 		super(title);
-	
+		
+		dbc = DataBaseConnection.getInstance();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
 		
 		taskName.setColumns(15);
@@ -86,11 +89,12 @@ public class AddNewTaskFrame extends JFrame{
 			}
 			if(isRepeated) {
 				String repeatedDays = RepeatedTask.booleanToString(repeatedOn);
-				mainAppFrame.getTaskTable().getDataBaseConnection().update(ScriptSQL.insertRepeatedTask(taskName.getText(), repeatedDays));
+				dbc.update(ScriptSQL.insertRepeatedTask(taskName.getText(), repeatedDays));
 				mainAppFrame.getTaskTable().updateTable(mainAppFrame.getDate());
 			}else {	
-				String formattedDate = String.format("%s/%s/%s", dueDateDay.getText(), dueDateMonth.getText(), dueDateYear.getText());
-				mainAppFrame.getTaskTable().getDataBaseConnection().update(ScriptSQL.insertRow(mainAppFrame.getTableName(), taskName.getText(), getTaskStatus(), formattedDate));
+				String formattedDate = String.format("%s / %s / %s", dueDateDay.getText(), dueDateMonth.getText(), dueDateYear.getText());
+				Task task = new Task(taskName.getText(), getTaskStatus(), formattedDate, mainAppFrame.getDate().format(DateTimeFormatter.ofPattern("dd / MM / uuuu")));
+				dbc.update(ScriptSQL.insertRow(task));
 				mainAppFrame.getTaskTable().updateTable(mainAppFrame.getDate());	
 			}
 			mainAppFrame.setEnabled(true);

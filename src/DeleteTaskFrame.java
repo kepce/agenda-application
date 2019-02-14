@@ -15,9 +15,12 @@ public class DeleteTaskFrame extends JFrame{
 	private JPanel bottomPanel;
 	private EmptyBorder emptyBorder;
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+	private DataBaseConnection dbc;
 	
 	public DeleteTaskFrame(String title, String selectedTaskName, MainAppFrame mainAppFrame) {
 		super(title);
+		
+		dbc = DataBaseConnection.getInstance();
 		this.setLayout(new BorderLayout());
 		bottomPanel = new JPanel();
 		
@@ -30,9 +33,9 @@ public class DeleteTaskFrame extends JFrame{
 		deleteButton.addActionListener(e->{
 			String selectedTaskDate = mainAppFrame.getTaskTable().getTable().getModel().getValueAt(mainAppFrame.getTaskTable().getSelectedRow(), 2).toString();
 			if(selectedTaskDate.equals("Daily Task")) {
-				mainAppFrame.getTaskTable().getDataBaseConnection().update(ScriptSQL.deleteRepeatedRow(selectedTaskName));
+				dbc.update(ScriptSQL.deleteRowFromRepTable(selectedTaskName));
 			}else {
-				mainAppFrame.getTaskTable().getDataBaseConnection().update(ScriptSQL.deleteRow(mainAppFrame.getTableName(), selectedTaskName));
+				dbc.update(ScriptSQL.deleteRow(selectedTaskName));
 			}
 			mainAppFrame.getTaskTable().updateTable(mainAppFrame.getDate());
 			this.dispose();

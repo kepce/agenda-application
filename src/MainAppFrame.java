@@ -11,7 +11,6 @@ import javax.swing.table.TableCellEditor;
 public class MainAppFrame extends JFrame{
 
 	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd / MM / uuuu");
-	private static final DateTimeFormatter TABLE_NAME_FORMAT = DateTimeFormatter.ofPattern("uuuu_DDD");
 	
 	private JButton leftButton = new JButton(" < ");
 	private JButton rightButton = new JButton(" > ");
@@ -19,13 +18,14 @@ public class MainAppFrame extends JFrame{
 	private JButton okButton = new JButton(" OK ");
 	private LocalDate date = LocalDate.now();
 	private JLabel dateLabel = new JLabel(date.format(DATE_FORMAT));
-	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 	private TaskTable taskTable;
+	private DataBaseConnection dbc;
 	
 	
 	public MainAppFrame(String title) {
 		super(title);
 		
+		dbc = DataBaseConnection.getInstance();
 		taskTable = new TaskTable(this);
 
 		setLayout(new BorderLayout());
@@ -50,7 +50,6 @@ public class MainAppFrame extends JFrame{
 		
 		String tableActionOptions[] = {"Add New Task",
 									   "Task Completed",
-									   "Edit Task",
 									   "Delete Task"};
 		
 		comboBox = new JComboBox(tableActionOptions);
@@ -63,15 +62,11 @@ public class MainAppFrame extends JFrame{
 			}else if(selectedItem.equals("Task Completed")) {
 				try {
 					String selectedTaskName = taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
-					taskTable.getDataBaseConnection().update(ScriptSQL.updateStatus(getTableNameOf(date), selectedTaskName, true));
+					dbc.update(ScriptSQL.updateStatus(selectedTaskName, date.format(DATE_FORMAT), true));
 					taskTable.updateTable(date);
 				}catch(Exception ex) {
 					showNotSelectedWarning(ex);
 				}
-			}else if(selectedItem.equals("Edit Task")) {
-				// <<<<<<
-				// <<<<<< Edit Task Frame
-				// <<<<<
 			}else if(selectedItem.equals("Delete Task")) {
 				try {
 					String selectedTaskName = taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
@@ -92,7 +87,7 @@ public class MainAppFrame extends JFrame{
 		this.setVisible(true);
 		this.setSize(600, 450);
 		this.setResizable(false);
-		this.setLocation((dim.width - this.getHeight())/2, (dim.height - this.getHeight())/2);
+		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		
@@ -111,36 +106,11 @@ public class MainAppFrame extends JFrame{
 		return this.date;
 	}
 	
-	public String getTableName() {
-		return this.date.format(TABLE_NAME_FORMAT);
-	}
-	
-	public String getTableNameOf(LocalDate date) {
-		return date.format(TABLE_NAME_FORMAT);
-	}
+
 }
 
 
-/*
- * No Edit Task Frame
- * 
- * task complete dediðinde mor olanlarý yesil yapmýyor
- * yapsan bile ileri geri oklarýný kullanýnca tekrar mora dönecek
- * 
- * renkleri kapa ac özelligi gelebilir
- * 
- * database icin login sayfasý gelebilir
- * 
- * tasklarla alakalý acýklama olabilir
- * 
- * kodu düzenle
- * database connectioni maine al - IMPROVEMENT
- * taskdatabase ismi degistir
- * 
- * her seyi tek tabloya koy
- * 
- * 
- * */
+
 
 
 
