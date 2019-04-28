@@ -1,47 +1,51 @@
+package com.ed.frames;
+
 import java.awt.BorderLayout;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.table.TableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellEditor;
+import java.time.Period;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import com.ed.main.TaskTable;
+import com.ed.utility.*;
+import com.ed.frames.EditTaskFrame;
+import com.ed.frames.DeleteTaskFrame;
+import com.ed.frames.AddNewTaskFrame;
 
 public class MainAppFrame extends JFrame{
-
-	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd / MM / uuuu");
 	
 	private JButton leftButton = new JButton(" < ");
 	private JButton rightButton = new JButton(" > ");
 	private JComboBox comboBox;
 	private JButton okButton = new JButton(" OK ");
-	private LocalDate date = LocalDate.now();
-	private JLabel dateLabel = new JLabel(date.format(DATE_FORMAT));
+	private JLabel dateLabel = new JLabel(GlobalDate.getFormattedDate());
 	private TaskTable taskTable;
 	private DataBaseConnection dbc;
 	
 	
 	public MainAppFrame(String title) {
 		super(title);
-		
 		dbc = DataBaseConnection.getInstance();
-		taskTable = new TaskTable(this);
+		taskTable = new TaskTable();
 
 		setLayout(new BorderLayout());
 		JPanel topPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
 		
 		rightButton.addActionListener(e->{
-			date = date.plusDays(1);
-			dateLabel.setText(date.format(DATE_FORMAT));
-			taskTable.updateTable(date);
+			GlobalDate.updateDateWith(Period.ofDays(1));
+			dateLabel.setText(GlobalDate.getFormattedDate());
+			taskTable.updateTable();
 		});
 		
 		leftButton.addActionListener(e->{
-			date = date.minusDays(1);
-			dateLabel.setText(date.format(DATE_FORMAT));
-			taskTable.updateTable(date);
+			GlobalDate.updateDateWith(Period.ofDays(-1));
+			dateLabel.setText(GlobalDate.getFormattedDate());
+			taskTable.updateTable();
 		});
 		
 		topPanel.add(leftButton);
@@ -61,16 +65,15 @@ public class MainAppFrame extends JFrame{
 				this.setEnabled(false);
 			}else if(selectedItem.equals("Task Completed")) {
 				try {
-					String selectedTaskName = taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
-					dbc.update(ScriptSQL.updateStatus(selectedTaskName, date.format(DATE_FORMAT), true));
-					taskTable.updateTable(date);
+					String selectedTaskId= taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
+					dbc.update(SQLScripts.updateStatus(Integer.valueOf(selectedTaskId), true));
+					taskTable.updateTable();
 				}catch(Exception ex) {
 					showNotSelectedWarning(ex);
 				}
 			}else if(selectedItem.equals("Delete Task")) {
 				try {
-					String selectedTaskName = taskTable.getTable().getModel().getValueAt(taskTable.getSelectedRow(), 0).toString();
-					DeleteTaskFrame deleteTaskFrame = new DeleteTaskFrame("Warning!", selectedTaskName, this);
+					DeleteTaskFrame deleteTaskFrame = new DeleteTaskFrame("Warning!", this);
 				}catch(Exception ex) {
 					showNotSelectedWarning(ex);
 				}
@@ -88,7 +91,7 @@ public class MainAppFrame extends JFrame{
 		this.setSize(600, 450);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
-		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		
 	}
@@ -101,13 +104,11 @@ public class MainAppFrame extends JFrame{
 	public TaskTable getTaskTable() {
 		return this.taskTable;
 	}
-	
-	public LocalDate getDate() {
-		return this.date;
-	}
+
 	
 
 }
+
 
 
 

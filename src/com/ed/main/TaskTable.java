@@ -1,12 +1,9 @@
+package com.ed.main;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.sql.ResultSet;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,6 +13,9 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import com.ed.frames.MainAppFrame;
+import com.ed.utility.*;
+
 public class TaskTable extends JPanel{
 
 	private DefaultTableModel tableModel;
@@ -23,22 +23,15 @@ public class TaskTable extends JPanel{
 	private JScrollPane scrollPane;
 	private DataBaseConnection dbc;
 	private ColorCellRenderer cellRenderer;
-	private List<Task> taskList = new ArrayList<Task>();
-	private List<RepeatedTask> repeatedTaskList = new ArrayList<RepeatedTask>();
-	private LocalDate today;
+
+
 	
-	public TaskTable(MainAppFrame mainAppFrame) {
-		
-		today = LocalDate.now();		
+	public TaskTable() {
 		dbc = DataBaseConnection.getInstance();
-		dbc.update(ScriptSQL.createRepeatedTaskTable());
-		dbc.update(ScriptSQL.createTable());
-		
-		taskList = dbc.getTaskListOf(today.format(DateTimeFormatter.ofPattern("dd/MM/uuuu")));
-		repeatedTaskList = dbc.getRepeatedTaskList();
-		
+		dbc.update(SQLScripts.createTable());
+
 		tableModel = new DefaultTableModel();
-		table  = new JTable(tableModel);
+		table = new JTable(tableModel);
 		scrollPane = new JScrollPane(table);
 		
 		cellRenderer = new ColorCellRenderer();
@@ -48,63 +41,68 @@ public class TaskTable extends JPanel{
 		table.setRowHeight(25);
 		table.setDefaultRenderer(Object.class, cellRenderer);
 		
+		tableModel.addColumn("Task ID");
 		tableModel.addColumn("Task Name");
 		tableModel.addColumn("Status");
 		tableModel.addColumn("Due Date");
 		
 		add(scrollPane);
 
-		updateTable(mainAppFrame.getDate());
+		updateTable();
 	}
-	
-	public void addNewTask(String taskName, String status, String dueDate) {
-		tableModel.addRow(new String[] {taskName, status, dueDate});
-	}
-	
+
 	public void addNewTask(Task task) {
-		if(task instanceof RepeatedTask)
-			tableModel.addRow(new String[] {task.getName(), "Not Completed", "Daily Task"});
-		else
-			tableModel.addRow(new String[] {task.getName(), task.getStatus(), task.getDueDate()});
+		tableModel.addRow(new String[] {String.valueOf(task.getId()), task.getName(), task.getStatus(), task.getFormattedDueDate()});
 	}
 	
-	public void updateTable(LocalDate date) {
+	public void updateTable() {
 		tableModel = (DefaultTableModel) table.getModel();
 		tableModel.setRowCount(0);
-		taskList.clear();
-		taskList = dbc.getTaskListOf(date.format(DateTimeFormatter.ofPattern("dd / MM / uuuu")));
-		Iterator<Task> iterator = taskList.iterator();
-		while(iterator.hasNext()) 
-			addNewTask((Task) iterator.next());
-		repeatedTaskList.clear();
-		repeatedTaskList = dbc.getRepeatedTaskList();
-		Iterator<RepeatedTask> repIterator = repeatedTaskList.iterator();
-		RepeatedTask repTask;
-		while(repIterator.hasNext()) {
-			repTask = (RepeatedTask) repIterator.next();
-			for(int i=0; i < 7; i++) {
-				if(repTask.getRepeatedDays()[i] && ((date.getDayOfWeek().getValue()-1) == i) && !taskList.contains(repTask)) {
-					Task task = new Task(repTask.getName(),
-							repTask.getStatus(),
-							repTask.getDueDate(),
-							date.format(DateTimeFormatter.ofPattern("dd / MM / uuuu")));
-					dbc.update(ScriptSQL.insertRow(task));
-					addNewTask(task);
-					
+		List<Task> taskList = dbc.getTaskListOf(GlobalDate.getDate());
+		List<Task> dailyTaskList = dbc.getDailyTasks();
+		for(Task task : dailyTaskList) {
+			if(!task.getCreationDate().isAfter(GlobalDate.getDate()) && !task.getDueDate().isBefore(GlobalDate.getDate()) && !taskList.contains(task)) {
+				task.setRepetitionConstant(Task.NOT_REPEATED);
+				task.setCompleted(false);
+				task.setCreationDate(GlobalDate.getDate());
+				dbc.update(SQLScripts.insertRow(task));
+			}
+		}
+		List<Task> weeklyTaskList = dbc.getWeeklyTasks();
+		for(Task task : weeklyTaskList) {
+			if(!task.getCreationDate().isAfter(GlobalDate.getDate()) && !task.getDueDate().isBefore(GlobalDate.getDate()) && !taskList.contains(task)) {
+				if(task.getCreationDate().getDayOfWeek() == GlobalDate.getDate().getDayOfWeek()){
+					task.setRepetitionConstant(Task.NOT_REPEATED);
+					task.setCompleted(false);
+					task.setCreationDate(GlobalDate.getDate());
+					dbc.update(SQLScripts.insertRow(task));
 				}
-			}	
+			}
+		}
+		taskList = dbc.getTaskListOf(GlobalDate.getDate());
+		for(Task task : taskList) {
+			addNewTask(task);
 		}
 	}
 	
 	public int getSelectedRow() {
+		System.out.println(table.getSelectedRow());
 		return table.getSelectedRow();
+	}
+	
+	public JTable getTable() {
+		return this.table;
+	}
+	
+	public Object getValueAt(int rowIndex, int columnIndex) {
+		return this.getTable().getModel().getValueAt(rowIndex, columnIndex);
 	}
 	
 	public class ColorCellRenderer extends DefaultTableCellRenderer{
 		
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			
-			String status = (String)table.getModel().getValueAt(row, 1);
+			String status = (String)table.getModel().getValueAt(row, 2);
 			String dueDate = (String) table.getModel().getValueAt(row, 2);
 			table.setFont(new Font("Calibri", Font.PLAIN, 14));
 
@@ -125,10 +123,7 @@ public class TaskTable extends JPanel{
 		}
 		
 	}
-	
-	public JTable getTable() { /// <<<<<<<<<<<<<<<<<< make it return copy of table for immutability
-		return table;
-	}
+
 	 	
 }
 

@@ -1,4 +1,7 @@
+package com.ed.main;
 
+import com.ed.frames.MainAppFrame;
+import com.ed.utility.LocalTaskManager;
 
 public class MainClass {
 
@@ -20,8 +23,6 @@ public class MainClass {
  * Task description frame 
  * 
  * Clean code
- * 
- * Change database class to singleton
  * 
  * Customize GUI, more style and better colors
  * 
