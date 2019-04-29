@@ -50,7 +50,7 @@ public class Task implements Comparable<Task>{
 		this.name = name;
 		this.description = description;
 		this.dueDate = dueDate;
-		this.creationDate = creationDate;//.format(GlobalDate.APP_DATE_FORMAT);
+		this.creationDate = creationDate;
 		this.repetitionConstant = repetitionConst;
 	}
 	
@@ -71,12 +71,7 @@ public class Task implements Comparable<Task>{
 			
 		}
 	}
-	
-	private void setProperties(int id, String name, String description, String dueDate, int repetitionConst) {
 		
-		// PREVENT CODE REPETITION WITH THIS METHOD <<<<<
-	}
-	
 	/*
 	 * Overriding Methods
 	 */
@@ -182,12 +177,6 @@ public class Task implements Comparable<Task>{
 	public void setDescription(String desc) {
 		this.description = desc;
 	}
-	
-	/*
-	 * Logic
-	 */
 
-	
-	
-	
+
 }

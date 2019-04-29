@@ -12,17 +12,16 @@ import javax.swing.JPanel;
 
 import com.ed.main.TaskTable;
 import com.ed.utility.*;
-import com.ed.frames.EditTaskFrame;
 import com.ed.frames.DeleteTaskFrame;
 import com.ed.frames.AddNewTaskFrame;
 
 public class MainAppFrame extends JFrame{
 	
-	private JButton leftButton = new JButton(" < ");
-	private JButton rightButton = new JButton(" > ");
+	private JButton leftButton;
+	private JButton rightButton;
 	private JComboBox comboBox;
-	private JButton okButton = new JButton(" OK ");
-	private JLabel dateLabel = new JLabel(GlobalDate.getFormattedDate());
+	private JButton okButton;
+	private JLabel dateLabel;;
 	private TaskTable taskTable;
 	private DataBaseConnection dbc;
 	
@@ -36,12 +35,16 @@ public class MainAppFrame extends JFrame{
 		JPanel topPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
 		
+		dateLabel = new JLabel(GlobalDate.getFormattedDate());
+		
+		rightButton = new JButton(" > ");
 		rightButton.addActionListener(e->{
 			GlobalDate.updateDateWith(Period.ofDays(1));
 			dateLabel.setText(GlobalDate.getFormattedDate());
 			taskTable.updateTable();
 		});
 		
+		leftButton = new JButton(" < ");
 		leftButton.addActionListener(e->{
 			GlobalDate.updateDateWith(Period.ofDays(-1));
 			dateLabel.setText(GlobalDate.getFormattedDate());
@@ -58,6 +61,7 @@ public class MainAppFrame extends JFrame{
 		
 		comboBox = new JComboBox(tableActionOptions);
 
+		okButton = new JButton(" OK ");
 		okButton.addActionListener(e->{
 			String selectedItem = comboBox.getItemAt(comboBox.getSelectedIndex()).toString();
 			if(selectedItem.equals("Add New Task")) {
@@ -87,12 +91,12 @@ public class MainAppFrame extends JFrame{
 		this.add(bottomPanel, BorderLayout.PAGE_END);
 		this.add(taskTable, BorderLayout.CENTER);
 		
-		this.setVisible(true);
-		this.setSize(600, 450);
+
+		this.setSize(550, 440);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		this.setVisible(true);
 		
 	}
 	

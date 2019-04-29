@@ -3,17 +3,22 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 import com.ed.frames.MainAppFrame;
+import com.ed.frames.TaskDescriptionFrame;
 import com.ed.utility.*;
 
 public class TaskTable extends JPanel{
@@ -23,14 +28,20 @@ public class TaskTable extends JPanel{
 	private JScrollPane scrollPane;
 	private DataBaseConnection dbc;
 	private ColorCellRenderer cellRenderer;
-
+	private MouseListener mouseListener;
 
 	
 	public TaskTable() {
 		dbc = DataBaseConnection.getInstance();
 		dbc.update(SQLScripts.createTable());
 
-		tableModel = new DefaultTableModel();
+		tableModel = new DefaultTableModel() {
+			@Override
+			public boolean isCellEditable(int row, int col) {
+				return false;
+			}
+		};
+		
 		table = new JTable(tableModel);
 		scrollPane = new JScrollPane(table);
 		
@@ -40,11 +51,20 @@ public class TaskTable extends JPanel{
 		table.setFillsViewportHeight(true);
 		table.setRowHeight(25);
 		table.setDefaultRenderer(Object.class, cellRenderer);
+		table.addMouseListener(new MouseListenerForCells());
 		
 		tableModel.addColumn("Task ID");
 		tableModel.addColumn("Task Name");
 		tableModel.addColumn("Status");
-		tableModel.addColumn("Due Date");
+		tableModel.addColumn("Until");
+		
+		TableColumnModel columnModel = table.getColumnModel();
+		columnModel.getColumn(0).setMinWidth(70);
+		columnModel.getColumn(0).setMaxWidth(70);
+		columnModel.getColumn(2).setMinWidth(110);
+		columnModel.getColumn(2).setMaxWidth(110);
+		columnModel.getColumn(3).setMinWidth(130);
+		columnModel.getColumn(3).setMaxWidth(130);
 		
 		add(scrollPane);
 
@@ -98,32 +118,88 @@ public class TaskTable extends JPanel{
 		return this.getTable().getModel().getValueAt(rowIndex, columnIndex);
 	}
 	
+	public class MouseListenerForCells implements MouseListener{
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if(e.getClickCount() == 2) {
+				String selectedTaskId = table.getModel().getValueAt(table.getSelectedRow(), 0).toString();
+				int taskId = Integer.valueOf(selectedTaskId);
+				Task task = dbc.getTaskWithId(taskId);
+				TaskDescriptionFrame taskDescriptionFrame = new TaskDescriptionFrame("Task Info", task);
+				
+			}
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
 	public class ColorCellRenderer extends DefaultTableCellRenderer{
 		
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			
-			String status = (String)table.getModel().getValueAt(row, 2);
-			String dueDate = (String) table.getModel().getValueAt(row, 2);
+			String taskId = (String)table.getModel().getValueAt(row, 0).toString();
+			int id = Integer.valueOf(taskId);
+			Task task = dbc.getTaskWithId(id);
+			int repConst = dbc.getRepetitionConstantIfExists(task);
 			table.setFont(new Font("Calibri", Font.PLAIN, 14));
 
-			if(dueDate.equals("Daily Task") && status.equals("Not Completed")) {
-				setForeground(Color.BLACK);
-				setBackground(Color.MAGENTA);
-			}else if(dueDate.equals("Daily Task") && status.equals("Completed")) {
-				setForeground(Color.BLACK);
-				setBackground(Color.GREEN);
-			}else if(status.equals("Not Completed")) {
-				setForeground(Color.BLACK);
-				setBackground(Color.RED);
+			if(repConst == Task.NOT_REPEATED) {
+				if(task.isCompleted()) {
+					setForeground(Color.BLACK);
+					setBackground(Color.GREEN);
+				}else {
+					setForeground(Color.BLACK);
+					setBackground(Color.RED);
+				}
+			}else if(repConst == Task.DAILY) {
+				if(task.isCompleted()) {
+					setForeground(Color.BLACK);
+					setBackground(Color.GREEN);
+				}else {
+					setForeground(Color.BLACK);
+					setBackground(Color.MAGENTA);	
+				}
+			}else if(repConst == Task.WEEKLY) {
+				if(task.isCompleted()) {
+					setForeground(Color.BLACK);
+					setBackground(Color.GREEN);
+				}else {
+					setForeground(Color.BLACK);
+					setBackground(Color.YELLOW);
+				}
 			}else {
 				setForeground(Color.BLACK);
 				setBackground(Color.GREEN);
 			}
+			this.setHorizontalAlignment(JLabel.CENTER);
+			this.setToolTipText(task.getDescription());
+
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
-		
-	}
-
-	 	
+	}	
 }
 

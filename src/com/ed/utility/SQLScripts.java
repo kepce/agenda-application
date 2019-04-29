@@ -11,9 +11,9 @@ public class SQLScripts {
 				+ " (task_id INT NOT NULL AUTO_INCREMENT,"
 				+ " task_creation_date VARCHAR(15) NOT NULL,"
 				+ " task_name VARCHAR(35) NOT NULL,"
-				+ " task_description VARCHAR(100) NOT NULL,"
+				+ " task_description VARCHAR(300) NOT NULL,"
 				+ " task_status VARCHAR(5) NOT NULL,"
-				+ " task_due_date VARCHAR(100) NOT NULL,"
+				+ " task_due_date VARCHAR(50) NOT NULL,"
 				+ " task_repetition INT NOT NULL,"
 				+ " PRIMARY KEY(task_id));";
 	}
@@ -27,7 +27,7 @@ public class SQLScripts {
 	}
 	public static String selectByDate(LocalDate date) {
 		return "SELECT * FROM tasks.task_table"
-				+ " WHERE task_creation_date = '" + date.format(GlobalDate.APP_DATE_FORMAT) + "' AND task_repeatition = '" + Task.NOT_REPEATED + "';";
+				+ " WHERE task_creation_date = '" + date.format(GlobalDate.APP_DATE_FORMAT) + "' AND task_repetition = '" + Task.NOT_REPEATED + "';";
 	}
 	
 	public static String selectByName(String name) {
@@ -35,15 +35,15 @@ public class SQLScripts {
 	}
 	
 	public static String selectDailyTasks() {
-		return "SELECT * FROM tasks.task_table WHERE task_repeatition = '" + Task.DAILY + "'";
+		return "SELECT * FROM tasks.task_table WHERE task_repetition = '" + Task.DAILY + "'";
 	}
 	
 	public static String selectWeeklyTasks() {
-		return "SELECT * FROM tasks.task_table WHERE task_repeatition = '" + Task.WEEKLY + "'"; 
+		return "SELECT * FROM tasks.task_table WHERE task_repetition = '" + Task.WEEKLY + "'"; 
 	}
 	public static String insertRow(Task task) {
 		return "INSERT INTO tasks.task_table"
-				+ " (task_name, task_description, task_status, task_due_date, task_creation_date, task_repeatition)"
+				+ " (task_name, task_description, task_status, task_due_date, task_creation_date, task_repetition)"
 				+ " VALUES ('" + task.getName() + "', '" + task.getDescription() + "', '" + task.isCompleted() + "', '" + task.getFormattedDueDate() + "', '" + task.getFormattedCreationDate() + "', '" + task.getRepetitionConstant() + "');" ;
 	}
 	

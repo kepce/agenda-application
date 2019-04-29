@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.ed.main.Task;
 
@@ -50,8 +51,8 @@ public class DataBaseConnection {
 		try {
 			Statement statement = connection.createStatement();
 			resultSet = statement.executeQuery(script);
-		} catch (SQLException e) {
-
+		} catch (SQLException ex) {
+			ex.printStackTrace();
 		}
 		return resultSet;
 	}
@@ -59,8 +60,8 @@ public class DataBaseConnection {
 	public void update(String script) {
 		try(Statement statement = connection.createStatement()){
 			statement.executeUpdate(script);
-		}catch(SQLException e) {
-			
+		}catch(SQLException ex) {
+			ex.printStackTrace();
 		}
 	}
 	
@@ -72,11 +73,11 @@ public class DataBaseConnection {
 						  resultSet.getString("task_description"),
 						  resultSet.getString("task_due_date"),
 						  resultSet.getString("task_creation_date"),
-						  resultSet.getInt("task_repeatition"),
+						  resultSet.getInt("task_repetition"),
 						  resultSet.getBoolean("task_Status"));
 			}
-		}catch(SQLException e) {
-			
+		}catch(SQLException ex) {
+			ex.printStackTrace();
 		}
 		return null;
 	}
@@ -90,11 +91,11 @@ public class DataBaseConnection {
 									  resultSet.getString("task_description"),
 									  resultSet.getString("task_due_date"),
 									  resultSet.getString("task_creation_date"),
-									  resultSet.getInt("task_repeatition"),
+									  resultSet.getInt("task_repetition"),
 									  resultSet.getBoolean("task_Status")));
 			}
-		}catch(SQLException e) {
-			
+		}catch(SQLException ex) {
+			ex.printStackTrace();
 		}
 		return taskList;
 	}
@@ -108,11 +109,11 @@ public class DataBaseConnection {
 									  resultSet.getString("task_description"),
 									  resultSet.getString("task_due_date"),
 									  resultSet.getString("task_creation_date"),
-									  resultSet.getInt("task_repeatition"),
+									  resultSet.getInt("task_repetition"),
 									  resultSet.getBoolean("task_Status")));
 			}
-		}catch(SQLException e) {
-			
+		}catch(SQLException ex) {
+			ex.printStackTrace();
 		}
 		return dailyTaskList;
 	}
@@ -126,11 +127,11 @@ public class DataBaseConnection {
 									  resultSet.getString("task_description"),
 									  resultSet.getString("task_due_date"),
 									  resultSet.getString("task_creation_date"),
-									  resultSet.getInt("task_repeatition"),
+									  resultSet.getInt("task_repetition"),
 									  resultSet.getBoolean("task_Status")));
 			}
-		}catch(SQLException e) {
-			
+		}catch(SQLException ex) {
+			ex.printStackTrace();
 		}
 		return weeklyTaskList;
 	}
@@ -144,13 +145,37 @@ public class DataBaseConnection {
 									  resultSet.getString("task_description"),
 									  resultSet.getString("task_due_date"),
 									  resultSet.getString("task_creation_date"),
-									  resultSet.getInt("task_repeatition"),
+									  resultSet.getInt("task_repetition"),
 									  resultSet.getBoolean("task_Status")));
 			}
-		}catch(SQLException e) {
-			
+		}catch(SQLException ex) {
+			ex.printStackTrace();
 		}
 		return taskList;
+	}
+	
+	public int getRepetitionConstantIfExists(Task task) {
+		List<Task> taskList = new ArrayList<>();
+		try(ResultSet resultSet = this.query(SQLScripts.selectByName(task.getName()));){
+			while(resultSet.next()) {
+				taskList.add(new Task(resultSet.getInt("task_id"),
+									  resultSet.getString("task_name"),
+									  resultSet.getString("task_description"),
+									  resultSet.getString("task_due_date"),
+									  resultSet.getString("task_creation_date"),
+									  resultSet.getInt("task_repetition"),
+									  resultSet.getBoolean("task_Status")));
+			}
+		}catch(SQLException ex) {
+			ex.printStackTrace();
+		}
+		Optional<Task> optionalTask = taskList.stream()
+											  .filter(t->t.getRepetitionConstant() != 0)
+											  .findFirst();
+		if(optionalTask.isPresent())
+			return optionalTask.get().getRepetitionConstant();
+		else
+			return Task.NOT_REPEATED;
 	}
 
 	

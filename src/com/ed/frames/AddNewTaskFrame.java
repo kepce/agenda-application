@@ -85,7 +85,6 @@ public class AddNewTaskFrame extends JFrame {
 		weeklyRadBut = new JRadioButton("Every Week");
 		weeklyRadBut.setEnabled(false);
 
-
 		repeatCheckBox = new JCheckBox("Repeat");
 		repeatCheckBox.addActionListener(e->{
 			if(repeatCheckBox.isSelected()) {
@@ -147,7 +146,6 @@ public class AddNewTaskFrame extends JFrame {
 				AddNewTaskFrame.this.dispose();
 			}
 		});
-		
 	}
 	
 	private int getRepeatedProperty() {
@@ -158,7 +156,5 @@ public class AddNewTaskFrame extends JFrame {
 		else
 			return Task.NOT_REPEATED;
 	}
-	
-	
-	
+
 }

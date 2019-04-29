@@ -20,9 +20,8 @@ public class DeleteTaskFrame extends JFrame{
 
 
 	private JLabel warningLabel;
-	private JButton deleteButton = new JButton("Delete");
-	private JButton cancelButton = new JButton("Cancel");
-	private JButton okButton = new JButton("OK");
+	private JButton deleteButton;
+	private JButton cancelButton;
 	private JPanel bottomPanel;
 	private JPanel centerPanel;
 	private EmptyBorder emptyBorder;
@@ -44,7 +43,7 @@ public class DeleteTaskFrame extends JFrame{
 			);
 
 		String warningMessage = "<html> Are you sure you want to delete the task with the ID:  \"" + selectedTaskId + "\" ?"
-				+ "<br> If this is a repeated task then all related tasks will be deleted! <html>";
+								+ "<br> If this is a repeated task then all related tasks will be deleted! </html>";
 		
 		warningLabel = new JLabel(warningMessage);
 		emptyBorder = new EmptyBorder(10,15,10,10);
@@ -54,6 +53,7 @@ public class DeleteTaskFrame extends JFrame{
 
 		this.add(centerPanel, BorderLayout.CENTER);
 		
+		deleteButton = new JButton("Delete");
 		deleteButton.addActionListener(e->{
 			List<Task> dailyTaskList = dbc.getDailyTasks();
 			List<Task> weeklyTaskList = dbc.getWeeklyTasks();
@@ -78,6 +78,7 @@ public class DeleteTaskFrame extends JFrame{
 			this.dispose();
 		});
 		
+		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(e->{
 			this.dispose();
 		});
