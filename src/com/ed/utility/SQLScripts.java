@@ -2,9 +2,11 @@ package com.ed.utility;
 
 import java.time.LocalDate;
 
-import com.ed.main.Task;
+import com.ed.task.Task;
 
 public class SQLScripts {
+	
+	private SQLScripts() {}
 	
 	public static String createTable() {
 		return "CREATE TABLE IF NOT EXISTS tasks.task_table"

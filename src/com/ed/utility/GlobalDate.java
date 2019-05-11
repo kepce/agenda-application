@@ -11,6 +11,8 @@ public class GlobalDate {
 	
 	private static LocalDate date = LocalDate.now();
 	
+	private GlobalDate() {}
+	
 	public static LocalDate getDate() {
 		return date;
 	}
