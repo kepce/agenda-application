@@ -68,7 +68,3 @@ Various tools have been used for this project. They are listed below:
 3- SQL  
 4- MySQL  
 
-## Future Work
-
-A user interface for MySQL login details would allow the application to be executable.
-
